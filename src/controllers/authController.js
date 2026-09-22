@@ -41,6 +41,26 @@ class AuthController {
       next(err);
     }
   }
+
+  async updateProfile(req, res, next) {
+    try {
+      const { full_name, avatar_url } = req.body;
+      const user = await authService.updateProfile(req.user.id, { full_name, avatar_url });
+      return successResponse(res, user, 'Cập nhật thông tin tài khoản thành công!');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async changePassword(req, res, next) {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      const result = await authService.changePassword(req.user.id, { oldPassword, newPassword });
+      return successResponse(res, result, 'Đổi mật khẩu thành công!');
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = new AuthController();

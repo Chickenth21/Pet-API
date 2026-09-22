@@ -179,6 +179,104 @@ class AuthService {
     throw new Error('Không tìm thấy thông tin tài khoản');
   }
 
+  async updateProfile(userId, { full_name, avatar_url }) {
+    // 1. Thử cập nhật trên Supabase
+    try {
+      const updateData = { updated_at: new Date().toISOString() };
+      if (full_name !== undefined) updateData.full_name = full_name;
+      if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+
+      const { data: updated, error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', userId)
+        .select('id, email, full_name, role, avatar_url, created_at, updated_at')
+        .single();
+
+      if (!error && updated) {
+        return updated;
+      }
+    } catch (err) {
+      console.warn('[AuthService] Supabase update profile error, fallback to memory:', err.message);
+    }
+
+    // 2. Dự phòng Memory
+    const memUser = memoryUsers.find(u => u.id === userId);
+    if (!memUser) {
+      throw new Error('Không tìm thấy tài khoản người dùng!');
+    }
+    if (full_name !== undefined) memUser.full_name = full_name;
+    if (avatar_url !== undefined) memUser.avatar_url = avatar_url;
+    memUser.updated_at = new Date().toISOString();
+
+    return {
+      id: memUser.id,
+      email: memUser.email,
+      full_name: memUser.full_name,
+      role: memUser.role,
+      avatar_url: memUser.avatar_url,
+      created_at: memUser.created_at,
+      updated_at: memUser.updated_at
+    };
+  }
+
+  async changePassword(userId, { oldPassword, newPassword }) {
+    if (!oldPassword || !newPassword) {
+      throw new Error('Vui lòng nhập mật khẩu cũ và mật khẩu mới!');
+    }
+    if (newPassword.length < 6) {
+      throw new Error('Mật khẩu mới phải có tối thiểu 6 ký tự!');
+    }
+
+    // 1. Thử trên Supabase
+    try {
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('id, password_hash')
+        .eq('id', userId)
+        .single();
+
+      if (!error && user) {
+        const isMatch = await bcrypt.compare(oldPassword, user.password_hash);
+        if (!isMatch) {
+          throw new Error('Mật khẩu cũ không chính xác!');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const password_hash = await bcrypt.hash(newPassword, salt);
+
+        const { error: updateErr } = await supabase
+          .from('users')
+          .update({ password_hash, updated_at: new Date().toISOString() })
+          .eq('id', userId);
+
+        if (!updateErr) {
+          return { message: 'Đổi mật khẩu thành công!' };
+        }
+      }
+    } catch (err) {
+      if (err.message && err.message.includes('Mật khẩu')) throw err;
+      console.warn('[AuthService] Supabase change password error, fallback to memory:', err.message);
+    }
+
+    // 2. Dự phòng Memory
+    const memUser = memoryUsers.find(u => u.id === userId);
+    if (!memUser) {
+      throw new Error('Không tìm thấy tài khoản người dùng!');
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, memUser.password_hash);
+    if (!isMatch) {
+      throw new Error('Mật khẩu cũ không chính xác!');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    memUser.password_hash = await bcrypt.hash(newPassword, salt);
+    memUser.updated_at = new Date().toISOString();
+
+    return { message: 'Đổi mật khẩu thành công!' };
+  }
+
   generateToken(user) {
     return jwt.sign(
       {
