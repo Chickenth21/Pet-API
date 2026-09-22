@@ -160,15 +160,19 @@ class ProductService {
       min_price,
       max_price,
       page = 1,
-      limit = 12
+      limit = 12,
+      include_inactive = false
     } = filters;
 
     let products = [];
     try {
       let query = supabase
         .from('products')
-        .select('*, categories(id, name, slug)', { count: 'exact' })
-        .eq('is_active', true);
+        .select('*, categories(id, name, slug)', { count: 'exact' });
+
+      if (!include_inactive || include_inactive === 'false') {
+        query = query.eq('is_active', true);
+      }
 
       if (pet_type && pet_type !== 'all') {
         query = query.or(`pet_type.eq.${pet_type},pet_type.eq.all`);
@@ -192,8 +196,11 @@ class ProductService {
     }
 
     if (products.length === 0) {
-      products = memoryProducts.filter(p => p.is_active);
+      products = (!include_inactive || include_inactive === 'false')
+        ? memoryProducts.filter(p => p.is_active)
+        : [...memoryProducts];
     }
+
 
     // Lọc bộ tiêu chuẩn
     let filtered = products.filter(p => {
@@ -311,6 +318,120 @@ class ProductService {
     const favProductIds = memoryFavorites.filter(f => f.user_id === userId).map(f => f.product_id);
     return memoryProducts.filter(p => favProductIds.includes(p.id));
   }
+
+  async createProduct(productData) {
+    const slugify = (text) =>
+      text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+
+    const slug = productData.slug || `${slugify(productData.name || 'san-pham')}-${Date.now().toString().slice(-4)}`;
+    const newProduct = {
+      id: productData.id || `p_${Date.now()}`,
+      category_id: productData.category_id || 'c1',
+      name: productData.name,
+      slug,
+      brand: productData.brand || 'Pet Paw Selected',
+      images: Array.isArray(productData.images)
+        ? productData.images
+        : productData.images
+        ? [productData.images]
+        : ['https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&auto=format&fit=crop'],
+      description: productData.description || '',
+      ingredients: productData.ingredients || '',
+      benefits: productData.benefits || '',
+      usage_instructions: productData.usage_instructions || '',
+      pet_type: productData.pet_type || 'all',
+      target_age: productData.target_age || 'Mọi lứa tuổi',
+      target_needs: productData.target_needs || '',
+      reference_price: Number(productData.reference_price) || 0,
+      shopee_url: productData.shopee_url || '',
+      tiktok_url: productData.tiktok_url || '',
+      is_active: productData.is_active !== undefined ? productData.is_active : true,
+      created_at: new Date().toISOString()
+    };
+
+    memoryProducts.unshift(newProduct);
+
+    try {
+      await supabase.from('products').insert([newProduct]);
+    } catch {
+      // Fallback
+    }
+
+    return newProduct;
+  }
+
+  async updateProduct(id, updateData) {
+    const index = memoryProducts.findIndex(p => p.id === id);
+    if (index === -1) {
+      throw new Error('Không tìm thấy sản phẩm để cập nhật!');
+    }
+
+    const updated = {
+      ...memoryProducts[index],
+      ...updateData,
+      updated_at: new Date().toISOString()
+    };
+
+    if (updateData.reference_price !== undefined) {
+      updated.reference_price = Number(updateData.reference_price);
+    }
+    if (updateData.images && !Array.isArray(updateData.images)) {
+      updated.images = [updateData.images];
+    }
+
+    memoryProducts[index] = updated;
+
+    try {
+      await supabase.from('products').update(updateData).eq('id', id);
+    } catch {
+      // Fallback
+    }
+
+    return updated;
+  }
+
+  async toggleProductActive(id) {
+    const index = memoryProducts.findIndex(p => p.id === id);
+    if (index === -1) {
+      throw new Error('Không tìm thấy sản phẩm!');
+    }
+
+    memoryProducts[index].is_active = !memoryProducts[index].is_active;
+
+    try {
+      await supabase.from('products').update({ is_active: memoryProducts[index].is_active }).eq('id', id);
+    } catch {
+      // Fallback
+    }
+
+    return memoryProducts[index];
+  }
+
+  async deleteProduct(id) {
+    const index = memoryProducts.findIndex(p => p.id === id);
+    if (index === -1) {
+      throw new Error('Không tìm thấy sản phẩm!');
+    }
+
+    const deleted = memoryProducts.splice(index, 1)[0];
+
+    try {
+      await supabase.from('products').delete().eq('id', id);
+    } catch {
+      // Fallback
+    }
+
+    return deleted;
+  }
 }
 
 module.exports = new ProductService();
+

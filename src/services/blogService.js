@@ -142,6 +142,113 @@ class BlogService {
       related_posts: related
     };
   }
+
+  async getAllPostsAdmin() {
+    return memoryBlogPosts;
+  }
+
+  async createPost(postData) {
+    const slugify = (text) =>
+      text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+
+    const slug = postData.slug || `${slugify(postData.title || 'bai-viet')}-${Date.now().toString().slice(-4)}`;
+    const newPost = {
+      id: postData.id || `b_${Date.now()}`,
+      title: postData.title,
+      slug,
+      summary: postData.summary || '',
+      content: postData.content || '',
+      thumbnail_url: postData.thumbnail_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&auto=format&fit=crop',
+      youtube_url: postData.youtube_url || '',
+      category: postData.category || 'Kiến thức nuôi',
+      tags: Array.isArray(postData.tags) ? postData.tags : (postData.tags ? postData.tags.split(',').map(t => t.trim()) : []),
+      target_pet_type: postData.target_pet_type || 'all',
+      is_published: postData.is_published !== undefined ? postData.is_published : true,
+      views_count: 0,
+      published_at: new Date().toISOString(),
+      created_at: new Date().toISOString()
+    };
+
+    memoryBlogPosts.unshift(newPost);
+
+    try {
+      await supabase.from('blog_posts').insert([newPost]);
+    } catch {
+      // Fallback
+    }
+
+    return newPost;
+  }
+
+  async updatePost(id, updateData) {
+    const index = memoryBlogPosts.findIndex(b => b.id === id);
+    if (index === -1) {
+      throw new Error('Không tìm thấy bài viết để cập nhật!');
+    }
+
+    const updated = {
+      ...memoryBlogPosts[index],
+      ...updateData,
+      updated_at: new Date().toISOString()
+    };
+
+    if (updateData.tags && typeof updateData.tags === 'string') {
+      updated.tags = updateData.tags.split(',').map(t => t.trim());
+    }
+
+    memoryBlogPosts[index] = updated;
+
+    try {
+      await supabase.from('blog_posts').update(updateData).eq('id', id);
+    } catch {
+      // Fallback
+    }
+
+    return updated;
+  }
+
+  async togglePostPublish(id) {
+    const index = memoryBlogPosts.findIndex(b => b.id === id);
+    if (index === -1) {
+      throw new Error('Không tìm thấy bài viết!');
+    }
+
+    memoryBlogPosts[index].is_published = !memoryBlogPosts[index].is_published;
+
+    try {
+      await supabase.from('blog_posts').update({ is_published: memoryBlogPosts[index].is_published }).eq('id', id);
+    } catch {
+      // Fallback
+    }
+
+    return memoryBlogPosts[index];
+  }
+
+  async deletePost(id) {
+    const index = memoryBlogPosts.findIndex(b => b.id === id);
+    if (index === -1) {
+      throw new Error('Không tìm thấy bài viết!');
+    }
+
+    const deleted = memoryBlogPosts.splice(index, 1)[0];
+
+    try {
+      await supabase.from('blog_posts').delete().eq('id', id);
+    } catch {
+      // Fallback
+    }
+
+    return deleted;
+  }
 }
 
 module.exports = new BlogService();
+
