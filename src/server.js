@@ -61,7 +61,7 @@ const server = app.listen(PORT, () => {
   console.log(`🚀 Pet Paw API Server running on port ${PORT}`);
   console.log(`🌐 Environment: ${config.nodeEnv}`);
   console.log(`📡 Supabase Endpoint: ${config.supabase.url}`);
-  console.log(`💬 Discord Channel Alert: ${config.discord.channelId}`);
+  console.log(`💬 Discord Channel ID: ${config.discord.channelId}`);
   console.log(`==============================================`);
 });
 
