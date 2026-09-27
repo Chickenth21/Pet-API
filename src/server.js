@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const config = require('./config');
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
@@ -13,6 +14,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Phục vụ ảnh tĩnh (Fallback khi chạy local)
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Request Logger đơn giản
 app.use((req, res, next) => {

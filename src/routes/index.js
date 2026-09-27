@@ -12,6 +12,7 @@ const adminRoutes = require('./adminRoutes');
 const petSaleRoutes = require('./petSaleRoutes');
 const errorRoutes = require('./errorRoutes');
 const petBreedRoutes = require('./petBreedRoutes');
+const uploadRoutes = require('./uploadRoutes');
 
 // Root API Healthcheck
 router.get('/health', (req, res) => {
@@ -32,6 +33,7 @@ router.use('/blogs', blogRoutes);
 router.use('/ai', aiRoutes);
 router.use('/pet-sales', petSaleRoutes);
 router.use('/breeds', petBreedRoutes);
+router.use('/upload', uploadRoutes);
 router.use('/admin', adminRoutes);
 router.use('/errors', errorRoutes);
 
