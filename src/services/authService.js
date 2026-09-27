@@ -5,27 +5,8 @@ const axios = require('axios');
 const supabase = require('../utils/supabaseClient');
 const config = require('../config');
 
-// Bộ nhớ đệm tạm thời dự phòng khi Supabase chưa chạy script khởi tạo bảng
-const memoryUsers = [
-  {
-    id: '11111111-1111-1111-1111-111111111111',
-    email: 'admin@petpaw.vn',
-    password_hash: '$2b$10$CYCA0KRbgR/8TUdMCeOx6ujOVjc2BLimSftbneUU7aMuoRUHiAIsO',
-    full_name: 'Quản Trị Viên Pet Paw',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop',
-    role: 'admin',
-    is_active: true
-  },
-  {
-    id: '22222222-2222-2222-2222-222222222222',
-    email: 'khachhang@petpaw.vn',
-    password_hash: '$2b$10$RkcV0bJzjNyAf5QnL4OlXeAKbvv7wZkh1dXjnGXiFttqC1hft/ouG',
-    full_name: 'Nguyễn Văn An',
-    avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop',
-    role: 'user',
-    is_active: true
-  }
-];
+// Bộ nhớ đệm tạm thời dự phòng cho các tài khoản mới tạo khi Supabase chưa phản hồi
+const memoryUsers = [];
 
 class AuthService {
   async register({ email, password, full_name }) {
