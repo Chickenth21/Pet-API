@@ -25,6 +25,21 @@ router.patch('/pet-sales/:id/status', adminController.updatePetForSaleStatus);
 router.delete('/pet-sales/:id', adminController.deletePetForSale);
 
 const petBreedController = require('../controllers/petBreedController');
+const locationController = require('../controllers/locationController');
+
+// Quản lý người dùng & Phân quyền (User & Role RBAC)
+router.get('/users', adminController.getUsers);
+router.post('/users', adminController.createUser);
+router.patch('/users/:id/role', adminController.updateUserRole);
+router.patch('/users/:id/status', adminController.toggleUserStatus);
+router.delete('/users/:id', adminController.deleteUser);
+
+// Quản lý Bệnh Viện Thú Y & Tiệm Spa (Pet Hospitals & Spas CRUD)
+router.get('/locations', locationController.getAdminLocations);
+router.post('/locations', locationController.createLocation);
+router.put('/locations/:id', locationController.updateLocation);
+router.patch('/locations/:id/toggle-active', locationController.toggleActive);
+router.delete('/locations/:id', locationController.deleteLocation);
 
 // Quản lý bài viết cẩm nang (Blog CRUD tác động trực tiếp tới trang khách hàng)
 router.get('/blogs', adminController.getBlogs);

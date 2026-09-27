@@ -10,7 +10,7 @@ const memoryUsers = [
   {
     id: '11111111-1111-1111-1111-111111111111',
     email: 'admin@petpaw.vn',
-    password_hash: '$2a$10$wO3tMsm.JcE23b2c1fEwqubQWz6E6K4fO2aYvK2g8xP2aL3gTzVn.', // Admin@123
+    password_hash: '$2b$10$CYCA0KRbgR/8TUdMCeOx6ujOVjc2BLimSftbneUU7aMuoRUHiAIsO',
     full_name: 'Quản Trị Viên Pet Paw',
     avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop',
     role: 'admin',
@@ -19,7 +19,7 @@ const memoryUsers = [
   {
     id: '22222222-2222-2222-2222-222222222222',
     email: 'khachhang@petpaw.vn',
-    password_hash: '$2a$10$wO3tMsm.JcE23b2c1fEwqubQWz6E6K4fO2aYvK2g8xP2aL3gTzVn.', // User@123
+    password_hash: '$2b$10$RkcV0bJzjNyAf5QnL4OlXeAKbvv7wZkh1dXjnGXiFttqC1hft/ouG',
     full_name: 'Nguyễn Văn An',
     avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop',
     role: 'user',
@@ -105,10 +105,7 @@ class AuthService {
         .maybeSingle();
 
       if (!error && user) {
-        let isMatch = await bcrypt.compare(password, user.password_hash);
-        if (!isMatch && email === 'admin@petpaw.vn' && (password === 'Admin@123' || password === 'admin@123')) {
-          isMatch = true;
-        }
+        const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
           throw new Error('Mật khẩu không chính xác!');
         }
@@ -434,4 +431,7 @@ class AuthService {
   }
 }
 
-module.exports = new AuthService();
+const authServiceInstance = new AuthService();
+authServiceInstance.memoryUsers = memoryUsers;
+module.exports = authServiceInstance;
+module.exports.memoryUsers = memoryUsers;
