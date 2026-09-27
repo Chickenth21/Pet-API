@@ -1,44 +1,7 @@
 const supabase = require('../utils/supabaseClient');
 
 // Danh sách thú cưng mẫu dự phòng
-let memoryPets = [
-  {
-    id: 'pet-1',
-    user_id: '22222222-2222-2222-2222-222222222222',
-    name: 'Miu Miu',
-    species: 'cat',
-    breed: 'Mèo Anh lông ngắn',
-    gender: 'female',
-    birth_date: '2024-04-10',
-    age_months: 29,
-    initial_weight: 4.8,
-    activity_level: 'low',
-    favorite_things: 'Thích ăn pate cá ngừ, nằm cuộn tròn trên bàn làm việc',
-    allergies: 'Dị ứng bột ngũ cốc, ngứa khi ăn cá trích',
-    ingredients_to_avoid: 'Ngô nghiền, gluten lúa mì',
-    health_notes: 'Đã tiêm đủ 3 mũi vacxin và triệt sản',
-    avatar_url: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=600&auto=format&fit=crop',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'pet-2',
-    user_id: '22222222-2222-2222-2222-222222222222',
-    name: 'Bơ (Butter)',
-    species: 'dog',
-    breed: 'Corgi',
-    gender: 'male',
-    birth_date: '2025-01-15',
-    age_months: 20,
-    initial_weight: 11.2,
-    activity_level: 'high',
-    favorite_things: 'Chạy nhặt bóng tennis, thích ăn ức gà luộc',
-    allergies: 'Không có dị ứng đặc biệt',
-    ingredients_to_avoid: 'Hành tỏi, socola, nho',
-    health_notes: 'Khung xương hông nhạy cảm, cần theo dõi trọng lượng tránh đè nặng cột sống',
-    avatar_url: 'https://images.unsplash.com/photo-1546975490-a79abdd54533?w=600&auto=format&fit=crop',
-    created_at: new Date().toISOString()
-  }
-];
+let memoryPets = [];
 
 class PetService {
   async getPetsByUser(userId) {
@@ -49,7 +12,7 @@ class PetService {
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (!error && data && data.length > 0) return data;
+      if (!error && data) return data;
     } catch {
       // Fallback
     }

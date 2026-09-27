@@ -3,56 +3,7 @@ const petService = require('./petService');
 const { evaluateBodyCondition, analyzeWeightTrend } = require('../utils/bodyConditionScorer');
 
 // Bộ nhớ đệm dự phòng
-let memoryRecords = [
-  {
-    id: 'rec-1',
-    pet_id: 'pet-1',
-    recorded_date: '2026-08-01',
-    weight: 4.8,
-    height: 26.0,
-    body_length: 42.0,
-    chest_girth: 35.0,
-    current_health_status: 'Rất tốt, nhanh nhẹn',
-    activity_level: 'medium',
-    daily_food_amount: '55g hạt + 1/2 gói pate',
-    symptoms: 'Không có',
-    notes: 'Khám định kỳ tại phòng khám thú y',
-    body_condition_result: 'normal',
-    created_at: '2026-08-01T08:00:00Z'
-  },
-  {
-    id: 'rec-2',
-    pet_id: 'pet-1',
-    recorded_date: '2026-08-20',
-    weight: 5.1,
-    height: 26.5,
-    body_length: 43.0,
-    chest_girth: 36.5,
-    current_health_status: 'Bình thường, hơi lười vận động',
-    activity_level: 'low',
-    daily_food_amount: '60g hạt',
-    symptoms: 'Ngủ nhiều trong ngày',
-    notes: 'Có dấu hiệu tăng cân nhẹ',
-    body_condition_result: 'normal',
-    created_at: '2026-08-20T08:00:00Z'
-  },
-  {
-    id: 'rec-3',
-    pet_id: 'pet-1',
-    recorded_date: '2026-09-15',
-    weight: 5.6,
-    height: 27.0,
-    body_length: 43.5,
-    chest_girth: 38.0,
-    current_health_status: 'Bình thường, thích nằm điều hòa',
-    activity_level: 'low',
-    daily_food_amount: '65g hạt + bánh thưởng',
-    symptoms: 'Mỡ bụng chảy xệ khi đi lại',
-    notes: 'Tăng cân nhanh do ăn vặt nhiều',
-    body_condition_result: 'at_risk_overweight',
-    created_at: '2026-09-15T08:00:00Z'
-  }
-];
+let memoryRecords = [];
 
 class HealthService {
   async getRecordsByPet(petId, userId) {
@@ -66,7 +17,7 @@ class HealthService {
         .eq('pet_id', petId)
         .order('recorded_date', { ascending: true });
 
-      if (!error && data && data.length > 0) records = data;
+      if (!error && data) records = data;
     } catch {
       // Fallback
     }

@@ -2,6 +2,7 @@ const productService = require('../services/productService');
 const affiliateService = require('../services/affiliateService');
 const blogService = require('../services/blogService');
 const petSaleService = require('../services/petSaleService');
+const supabase = require('../utils/supabaseClient');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 class AdminController {
@@ -17,10 +18,23 @@ class AdminController {
       const petsAvailable = petsSaleData.pets.filter(p => p.status === 'available').length;
       const petsSold = petsSaleData.pets.filter(p => p.status === 'sold').length;
 
+      let totalUsers = 0;
+      let totalPets = 0;
+      try {
+        const [usersCountRes, petsCountRes] = await Promise.all([
+          supabase.from('users').select('*', { count: 'exact', head: true }),
+          supabase.from('pets').select('*', { count: 'exact', head: true })
+        ]);
+        if (usersCountRes.count !== null && !usersCountRes.error) totalUsers = usersCountRes.count;
+        if (petsCountRes.count !== null && !petsCountRes.error) totalPets = petsCountRes.count;
+      } catch {
+        // Fallback
+      }
+
       return successResponse(res, {
         summary: {
-          totalUsers: 148,
-          totalPets: 215,
+          totalUsers,
+          totalPets,
           totalPetsForSale,
           petsAvailable,
           petsSold,

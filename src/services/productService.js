@@ -1,136 +1,16 @@
 const supabase = require('../utils/supabaseClient');
+const crypto = require('crypto');
 
 let memoryCategories = [
-  { id: 'c1', name: 'Thức ăn hạt cho Mèo', slug: 'thuc-an-hat-cho-meo', pet_type: 'cat', sort_order: 1, is_active: true },
-  { id: 'c2', name: 'Thức ăn hạt cho Chó', slug: 'thuc-an-hat-cho-cho', pet_type: 'dog', sort_order: 2, is_active: true },
-  { id: 'c3', name: 'Pate & Thức ăn ướt', slug: 'pate-thuc-an-uot', pet_type: 'all', sort_order: 3, is_active: true },
-  { id: 'c4', name: 'Bánh thưởng & Snack', slug: 'banh-thuong-snack', pet_type: 'all', sort_order: 4, is_active: true },
-  { id: 'c5', name: 'Đồ chơi & Vận động', slug: 'do-choi-van-dong', pet_type: 'all', sort_order: 5, is_active: true },
-  { id: 'c6', name: 'Chăm sóc & Vệ sinh', slug: 'cham-soc-ve-sinh', pet_type: 'all', sort_order: 6, is_active: true }
+  { id: 'c1111111-1111-1111-1111-111111111111', name: 'Thức ăn hạt cho Mèo', slug: 'thuc-an-hat-cho-meo', pet_type: 'cat', sort_order: 1, is_active: true },
+  { id: 'c2222222-2222-2222-2222-222222222222', name: 'Thức ăn hạt cho Chó', slug: 'thuc-an-hat-cho-cho', pet_type: 'dog', sort_order: 2, is_active: true },
+  { id: 'c3333333-3333-3333-3333-333333333333', name: 'Pate & Thức ăn ướt', slug: 'pate-thuc-an-uot', pet_type: 'all', sort_order: 3, is_active: true },
+  { id: 'c4444444-4444-4444-4444-444444444444', name: 'Bánh thưởng & Snack', slug: 'banh-thuong-snack', pet_type: 'all', sort_order: 4, is_active: true },
+  { id: 'c5555555-5555-5555-5555-555555555555', name: 'Đồ chơi & Vận động', slug: 'do-choi-van-dong', pet_type: 'all', sort_order: 5, is_active: true },
+  { id: 'c6666666-6666-6666-6666-666666666666', name: 'Chăm sóc & Vệ sinh', slug: 'cham-soc-ve-sinh', pet_type: 'all', sort_order: 6, is_active: true }
 ];
 
-let memoryProducts = [
-  {
-    id: 'p1',
-    category_id: 'c1',
-    name: 'Hạt Royal Canin British Shorthair Adult cho Mèo Anh Lông Ngắn',
-    slug: 'royal-canin-british-shorthair-adult',
-    brand: 'Royal Canin',
-    images: ['https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&auto=format&fit=crop'],
-    description: 'Hạt chuyên dụng thiết kế theo khuôn hàm mèo Anh lông ngắn hình vầng trăng khuyết, bảo vệ sức khỏe tim mạch và duy trì khối lượng cơ bắp săn chắc.',
-    ingredients: 'Thịt gia cầm sấy khô cô đặc, gạo tấm, protein thực vật cô lập, mỡ gà sạch, dầu cá giàu EPA/DHA, củ cải đường, men bia.',
-    benefits: 'Duy trì vóc dáng chắc nịch không bị xệ bụng; Chăm sóc đường tiết niệu; Tăng cường men vi sinh đường ruột.',
-    usage_instructions: 'Cho ăn theo định lượng in trên bao bì. Mèo 5kg: 60g/ngày.',
-    pet_type: 'cat',
-    target_age: 'Trưởng thành (trên 12 tháng)',
-    target_needs: 'Kiểm soát cân nặng',
-    reference_price: 420000,
-    shopee_url: 'https://shopee.vn/search?keyword=royal+canin+british+shorthair',
-    tiktok_url: 'https://www.tiktok.com/search?q=royal+canin+british+shorthair',
-    is_active: true,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'p2',
-    category_id: 'c2',
-    name: 'Hạt Chó Con SmartHeart Gold Puppy Phát Triển Não Bộ & Tiêu Hóa',
-    slug: 'smartheart-gold-puppy-dha',
-    brand: 'SmartHeart',
-    images: ['https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&auto=format&fit=crop'],
-    description: 'Hạt cho cún con với hàm lượng DHA tinh khiết từ dầu cá biển giúp cún cưng tiếp thu huấn luyện thông minh và mắt sáng long lanh.',
-    ingredients: 'Bột thịt gia cầm, gạo vỡ, bắp, đậu nành, bột củ cải đường, dầu cá ngừ, prebiotic FOS.',
-    benefits: 'Khung xương và khớp phát triển vững chắc; Tiêu hóa khỏe mạnh, giảm mùi hôi chất thải.',
-    usage_instructions: 'Có thể ngâm mềm với nước ấm hoặc sữa chuyên dụng cho cún dưới 3 tháng tuổi.',
-    pet_type: 'dog',
-    target_age: 'Dưới 12 tháng',
-    target_needs: 'Tăng trưởng nhanh & Miễn dịch',
-    reference_price: 285000,
-    shopee_url: 'https://shopee.vn/search?keyword=smartheart+gold+puppy',
-    tiktok_url: 'https://www.tiktok.com/search?q=smartheart+gold+puppy',
-    is_active: true,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'p3',
-    category_id: 'c3',
-    name: 'Pate Ciao Churu Cho Mèo Dạng Kem Tuýp (Gói 4 thanh x 14g)',
-    slug: 'pate-ciao-churu-dang-thanh',
-    brand: 'Inaba Ciao',
-    images: ['https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&auto=format&fit=crop'],
-    description: 'Món ăn vặt dạng kem số 1 Nhật Bản bổ sung độ ẩm dồi dào, đánh thức mọi vị giác khó tính của loài mèo.',
-    ingredients: 'Thịt ức gà tươi, cá ngừ đại dương Maguro, chiết xuất sò điệp Hokkaido, trà xanh khử mùi hôi miệng.',
-    benefits: 'Phòng ngừa hiệu quả các bệnh sỏi thận và sỏi đường tiết niệu do mèo ít chịu uống nước.',
-    usage_instructions: 'Bóp cho ăn trực tiếp hoặc trộn vào hạt khô để tăng độ hấp dẫn.',
-    pet_type: 'cat',
-    target_age: 'Mọi lứa tuổi',
-    target_needs: 'Bổ sung nước & Kích thích ăn uống',
-    reference_price: 45000,
-    shopee_url: 'https://shopee.vn/search?keyword=pate+ciao+churu',
-    tiktok_url: 'https://www.tiktok.com/search?q=pate+ciao+churu',
-    is_active: true,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'p4',
-    category_id: 'c6',
-    name: 'Sữa Tắm Thảo Dược Khử Mùi & Dưỡng Lông SOS (Chai 530ml)',
-    slug: 'sua-tam-duong-long-sos-530ml',
-    brand: 'SOS Pet',
-    images: ['https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&auto=format&fit=crop'],
-    description: 'Dòng sữa tắm cao cấp dịu nhẹ giữ mùi hương hoa cỏ tự nhiên lưu hương thơm mát đến 10 ngày.',
-    ingredients: 'Chiết xuất hoa cúc La Mã, dầu dừa tinh khiết, Vitamin E, Protein tơ tằm.',
-    benefits: 'Diệt khuẩn da, làm mềm mượt lông xơ rối, ngăn ngừa viêm da và ngứa ngáy mùa ẩm ướt.',
-    usage_instructions: 'Làm ướt lông, xoa bóp tạo bọt 3-5 phút sau đó xả sạch lại bằng nước ấm.',
-    pet_type: 'all',
-    target_age: 'Mọi lứa tuổi',
-    target_needs: 'Dưỡng lông & Diệt khuẩn',
-    reference_price: 115000,
-    shopee_url: 'https://shopee.vn/search?keyword=sua+tam+sos+cho+meo',
-    tiktok_url: 'https://www.tiktok.com/search?q=sua+tam+sos',
-    is_active: true,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'p5',
-    category_id: 'c5',
-    name: 'Đồ Chơi Tháp Bóng 3 Tầng Kích Thích Vận Động Cho Mèo',
-    slug: 'thap-bong-3-tang-cho-meo',
-    brand: 'PetJoy',
-    images: ['https://images.unsplash.com/photo-1545249390-6bdfa286032f?w=600&auto=format&fit=crop'],
-    description: 'Tháp bóng 3 tầng thông minh giúp mèo cưng tự chơi hàng giờ, giải tỏa ức chế và kích thích phản xạ săn mồi.',
-    ingredients: 'Nhựa ABS nguyên sinh không độc hại, an toàn tuyệt đối cho thú cưng khi cắn gặm.',
-    benefits: 'Tăng cường vận động tiêu hao mỡ thừa cho mèo lười; Giảm thói quen cào rách ghế sofa.',
-    usage_instructions: 'Đặt trên mặt sàn phẳng trong phòng khách hoặc gần chỗ ngủ của mèo.',
-    pet_type: 'cat',
-    target_age: 'Mọi lứa tuổi',
-    target_needs: 'Vận động & Giảm cân',
-    reference_price: 65000,
-    shopee_url: 'https://shopee.vn/search?keyword=thap+bong+3+tang+cho+meo',
-    tiktok_url: 'https://www.tiktok.com/search?q=thap+bong+3+tang',
-    is_active: true,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'p6',
-    category_id: 'c4',
-    name: 'Bánh Thưởng Sạch Răng Cho Chó Vegebrand Dental Bone (Gói 180g)',
-    slug: 'banh-thuong-sach-rang-vegebrand',
-    brand: 'Vegebrand',
-    images: ['https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&auto=format&fit=crop'],
-    description: 'Xương gặm làm sạch mảng bám răng, phòng ngừa cao răng và tạo hơi thở thơm tho tự nhiên cho cún yêu.',
-    ingredients: 'Bột gạo, tinh bột sắn, gelatin tự nhiên, bạc hà khử mùi, chlorophyll.',
-    benefits: 'Cơ hàm dẻo dai; Đánh bay 90% cao răng tích tụ; Hương bạc hà mát lành.',
-    usage_instructions: 'Cho cún gặm 1 thanh/ngày sau bữa ăn chính.',
-    pet_type: 'dog',
-    target_age: 'Trưởng thành (trên 12 tháng)',
-    target_needs: 'Chăm sóc răng miệng',
-    reference_price: 78000,
-    shopee_url: 'https://shopee.vn/search?keyword=vegebrand+dental+bone',
-    tiktok_url: 'https://www.tiktok.com/search?q=vegebrand+dental',
-    is_active: true,
-    created_at: new Date().toISOString()
-  }
-];
+let memoryProducts = [];
 
 let memoryFavorites = [];
 
@@ -195,11 +75,7 @@ class ProductService {
       // Fallback
     }
 
-    if (products.length === 0) {
-      products = (!include_inactive || include_inactive === 'false')
-        ? memoryProducts.filter(p => p.is_active)
-        : [...memoryProducts];
-    }
+    // No products fallback to memory
 
 
     // Lọc bộ tiêu chuẩn
@@ -332,17 +208,39 @@ class ProductService {
         .trim();
 
     const slug = productData.slug || `${slugify(productData.name || 'san-pham')}-${Date.now().toString().slice(-4)}`;
+    
+    // Map category ID if it's shorthand 'c1'..'c6'
+    let catId = productData.category_id;
+    const catMap = {
+      'c1': 'c1111111-1111-1111-1111-111111111111',
+      'c2': 'c2222222-2222-2222-2222-222222222222',
+      'c3': 'c3333333-3333-3333-3333-333333333333',
+      'c4': 'c4444444-4444-4444-4444-444444444444',
+      'c5': 'c5555555-5555-5555-5555-555555555555',
+      'c6': 'c6666666-6666-6666-6666-666666666666'
+    };
+    if (catMap[catId]) {
+      catId = catMap[catId];
+    } else if (!catId || !catId.includes('-')) {
+      catId = 'c1111111-1111-1111-1111-111111111111';
+    }
+
+    const parsePrice = (val) => {
+      if (typeof val === 'number') return Math.round(val);
+      if (!val) return 0;
+      const digitsOnly = String(val).replace(/[^0-9]/g, '');
+      return parseInt(digitsOnly, 10) || 0;
+    };
+
     const newProduct = {
-      id: productData.id || `p_${Date.now()}`,
-      category_id: productData.category_id || 'c1',
+      id: (productData.id && productData.id.includes('-')) ? productData.id : crypto.randomUUID(),
+      category_id: catId,
       name: productData.name,
       slug,
       brand: productData.brand || 'Pet Paw Selected',
       images: Array.isArray(productData.images)
         ? productData.images
-        : productData.images
-        ? [productData.images]
-        : ['https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&auto=format&fit=crop'],
+        : (productData.images ? [productData.images] : (productData.image_url ? [productData.image_url] : [])),
       description: productData.description || '',
       ingredients: productData.ingredients || '',
       benefits: productData.benefits || '',
@@ -350,86 +248,133 @@ class ProductService {
       pet_type: productData.pet_type || 'all',
       target_age: productData.target_age || 'Mọi lứa tuổi',
       target_needs: productData.target_needs || '',
-      reference_price: Number(productData.reference_price) || 0,
+      reference_price: parsePrice(productData.reference_price),
       shopee_url: productData.shopee_url || '',
       tiktok_url: productData.tiktok_url || '',
-      is_active: productData.is_active !== undefined ? productData.is_active : true,
+      is_active: productData.is_active !== undefined ? Boolean(productData.is_active) : true,
       created_at: new Date().toISOString()
     };
 
-    memoryProducts.unshift(newProduct);
-
     try {
-      await supabase.from('products').insert([newProduct]);
-    } catch {
-      // Fallback
+      const { data, error } = await supabase
+        .from('products')
+        .insert([newProduct])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase createProduct error:', error);
+      } else if (data) {
+        memoryProducts.unshift(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Supabase createProduct exception:', err);
     }
 
+    memoryProducts.unshift(newProduct);
     return newProduct;
   }
 
   async updateProduct(id, updateData) {
-    const index = memoryProducts.findIndex(p => p.id === id);
-    if (index === -1) {
-      throw new Error('Không tìm thấy sản phẩm để cập nhật!');
-    }
-
-    const updated = {
-      ...memoryProducts[index],
-      ...updateData,
-      updated_at: new Date().toISOString()
-    };
-
+    const payload = { ...updateData, updated_at: new Date().toISOString() };
     if (updateData.reference_price !== undefined) {
-      updated.reference_price = Number(updateData.reference_price);
+      if (typeof updateData.reference_price === 'number') {
+        payload.reference_price = Math.round(updateData.reference_price);
+      } else {
+        const digitsOnly = String(updateData.reference_price).replace(/[^0-9]/g, '');
+        payload.reference_price = parseInt(digitsOnly, 10) || 0;
+      }
     }
     if (updateData.images && !Array.isArray(updateData.images)) {
-      updated.images = [updateData.images];
+      payload.images = [updateData.images];
     }
-
-    memoryProducts[index] = updated;
+    if (updateData.category_id) {
+      const catMap = {
+        'c1': 'c1111111-1111-1111-1111-111111111111',
+        'c2': 'c2222222-2222-2222-2222-222222222222',
+        'c3': 'c3333333-3333-3333-3333-333333333333',
+        'c4': 'c4444444-4444-4444-4444-444444444444',
+        'c5': 'c5555555-5555-5555-5555-555555555555',
+        'c6': 'c6666666-6666-6666-6666-666666666666'
+      };
+      if (catMap[updateData.category_id]) {
+        payload.category_id = catMap[updateData.category_id];
+      }
+    }
 
     try {
-      await supabase.from('products').update(updateData).eq('id', id);
-    } catch {
-      // Fallback
+      const { data, error } = await supabase
+        .from('products')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        const idx = memoryProducts.findIndex(p => p.id === id);
+        if (idx !== -1) memoryProducts[idx] = data;
+        return data;
+      }
+    } catch (err) {
+      console.error('Supabase updateProduct exception:', err);
     }
 
-    return updated;
+    const index = memoryProducts.findIndex(p => p.id === id);
+    if (index !== -1) {
+      memoryProducts[index] = { ...memoryProducts[index], ...payload };
+      return memoryProducts[index];
+    }
+    return payload;
   }
 
   async toggleProductActive(id) {
-    const index = memoryProducts.findIndex(p => p.id === id);
-    if (index === -1) {
-      throw new Error('Không tìm thấy sản phẩm!');
-    }
-
-    memoryProducts[index].is_active = !memoryProducts[index].is_active;
-
     try {
-      await supabase.from('products').update({ is_active: memoryProducts[index].is_active }).eq('id', id);
-    } catch {
-      // Fallback
+      const { data: current } = await supabase
+        .from('products')
+        .select('is_active')
+        .eq('id', id)
+        .single();
+
+      if (current) {
+        const nextState = !current.is_active;
+        const { data, error } = await supabase
+          .from('products')
+          .update({ is_active: nextState, updated_at: new Date().toISOString() })
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (!error && data) {
+          const idx = memoryProducts.findIndex(p => p.id === id);
+          if (idx !== -1) memoryProducts[idx] = data;
+          return data;
+        }
+      }
+    } catch (err) {
+      console.error('Supabase toggleProductActive exception:', err);
     }
 
-    return memoryProducts[index];
+    const index = memoryProducts.findIndex(p => p.id === id);
+    if (index !== -1) {
+      memoryProducts[index].is_active = !memoryProducts[index].is_active;
+      return memoryProducts[index];
+    }
+    return { id, is_active: true };
   }
 
   async deleteProduct(id) {
-    const index = memoryProducts.findIndex(p => p.id === id);
-    if (index === -1) {
-      throw new Error('Không tìm thấy sản phẩm!');
-    }
-
-    const deleted = memoryProducts.splice(index, 1)[0];
-
     try {
       await supabase.from('products').delete().eq('id', id);
-    } catch {
-      // Fallback
+    } catch (err) {
+      console.error('Supabase deleteProduct exception:', err);
     }
 
-    return deleted;
+    const index = memoryProducts.findIndex(p => p.id === id);
+    if (index !== -1) {
+      memoryProducts.splice(index, 1);
+    }
+    return true;
   }
 }
 

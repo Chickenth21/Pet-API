@@ -61,6 +61,19 @@ class AuthController {
       next(err);
     }
   }
+
+  async googleAuth(req, res, next) {
+    try {
+      const { credential, demoUser } = req.body;
+      const result = await authService.googleLogin({ credential, demoUser });
+      const message = result.isNewUser 
+        ? 'Đăng ký tài khoản Pet Paw qua Google thành công!' 
+        : 'Đăng nhập Pet Paw qua Google thành công!';
+      return successResponse(res, result, message);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = new AuthController();

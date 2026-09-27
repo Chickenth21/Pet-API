@@ -1,12 +1,6 @@
 const supabase = require('../utils/supabaseClient');
 
-let memoryClicks = [
-  { id: 'clk-1', product_id: 'p1', platform: 'shopee', user_id: null, clicked_at: new Date(Date.now() - 3600000 * 2).toISOString() },
-  { id: 'clk-2', product_id: 'p1', platform: 'shopee', user_id: null, clicked_at: new Date(Date.now() - 3600000 * 5).toISOString() },
-  { id: 'clk-3', product_id: 'p3', platform: 'tiktok', user_id: null, clicked_at: new Date(Date.now() - 3600000 * 8).toISOString() },
-  { id: 'clk-4', product_id: 'p2', platform: 'shopee', user_id: null, clicked_at: new Date(Date.now() - 3600000 * 12).toISOString() },
-  { id: 'clk-5', product_id: 'p4', platform: 'tiktok', user_id: null, clicked_at: new Date(Date.now() - 3600000 * 24).toISOString() }
-];
+let memoryClicks = [];
 
 class AffiliateService {
   async trackClick({ productId, platform, userId, ipAddress, userAgent }) {
@@ -30,13 +24,25 @@ class AffiliateService {
   }
 
   async getClickStats() {
-    const totalClicks = memoryClicks.length;
-    const shopeeClicks = memoryClicks.filter(c => c.platform === 'shopee').length;
-    const tiktokClicks = memoryClicks.filter(c => c.platform === 'tiktok').length;
+    let clicks = [];
+    try {
+      const { data, error } = await supabase
+        .from('affiliate_clicks')
+        .select('*');
+      if (!error && data) {
+        clicks = data;
+      }
+    } catch {
+      clicks = memoryClicks;
+    }
+
+    const totalClicks = clicks.length;
+    const shopeeClicks = clicks.filter(c => c.platform === 'shopee').length;
+    const tiktokClicks = clicks.filter(c => c.platform === 'tiktok').length;
 
     // Nhóm theo sản phẩm
     const productCounts = {};
-    memoryClicks.forEach(c => {
+    clicks.forEach(c => {
       productCounts[c.product_id] = (productCounts[c.product_id] || 0) + 1;
     });
 
