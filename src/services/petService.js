@@ -138,64 +138,162 @@ class PetService {
   /**
    * Tính năng Gợi ý chọn thú cưng phù hợp (Pet Matchmaker)
    */
-  evaluateMatchmaker({ livingSpace, roomArea, freeTimeHours, hasChildren, monthlyBudget, sheddingTolerance }) {
-    // Thuật toán chấm điểm theo hồ sơ lối sống
+  /**
+   * Tính năng Gợi ý chọn thú cưng phù hợp (Pet Matchmaker)
+   * Tiêu chí thiết thực: species, budgetTier, livingSpace, personality
+   */
+  evaluateMatchmaker({ species = 'both', budgetTier = '8m_to_15m', livingSpace = 'apartment_medium', personality = 'cuddly_gentle' }) {
     const candidates = [
       {
-        breed: 'Mèo Anh lông ngắn (British Shorthair)',
-        species: 'cat',
-        matchScore: 95,
-        image: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=600&auto=format&fit=crop',
-        reason: 'Rất điềm tĩnh, độc lập, ít quậy phá, hoàn hảo cho không gian chung cư và chủ nhân bận rộn.',
-        pros: ['Không gây tiếng ồn', 'Thân thiện với trẻ nhỏ', 'Không cần dắt đi dạo hàng ngày'],
-        cons: ['Lông rụng theo mùa, cần chải lông định kỳ', 'Dễ tăng cân nếu ít vận động'],
-        monthlyCost: '800.000 - 1.200.000 VNĐ'
-      },
-      {
-        breed: 'Chó Poodle (Toy / Mini)',
+        breed: 'Chó Poodle (Tiny / Toy)',
         species: 'dog',
-        matchScore: 90,
-        image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop',
-        reason: 'Cực kỳ thông minh, vâng lời và đặc biệt là không rụng lông, thích hợp cho người có cơ địa dị ứng.',
-        pros: ['Rất ít rụng lông', 'Dễ huấn luyện và tiếp thu lệnh nhanh', 'Kích thước nhỏ gọn'],
-        cons: ['Cần chải chuốt và cắt tỉa lông định kỳ', 'Rất quấn chủ, dễ buồn nếu ở nhà một mình quá lâu'],
-        monthlyCost: '700.000 - 1.000.000 VNĐ'
+        priceRange: '5.500.000 - 8.500.000 VNĐ',
+        idealBudget: ['under_8m', '8m_to_15m'],
+        idealSpaces: ['apartment_small', 'apartment_medium', 'house_garden'],
+        idealPersonalities: ['cuddly_gentle', 'calm_independent'],
+        image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop',
+        reason: 'Thông minh, nhỏ nhắn, đặc biệt không rụng lông, vô cùng quấn quýt và phù hợp hoàn hảo với căn hộ nhỏ.',
+        pros: ['Rất ít rụng lông, thích hợp người hay dị ứng', 'Thông minh top 2 thế giới, tiếp thu lệnh cực nhanh', 'Kích thước nhỏ gọn, dễ chăm sóc bế bồng'],
+        cons: ['Cần chải lông và spa cắt tỉa định kỳ', 'Rất tình cảm nên cần chủ dành thời gian quan tâm'],
+        marketLink: '/buy-pets?species=dog'
       },
       {
         breed: 'Chó Corgi Pembroke',
         species: 'dog',
-        matchScore: 82,
-        image: 'https://images.unsplash.com/photo-1546975490-a79abdd54533?w=600&auto=format&fit=crop',
-        reason: 'Hài hước, năng động, trung thành và luôn mang lại tiếng cười cho cả gia đình có trẻ em.',
-        pros: ['Tính cách vui vẻ', 'Rất trung thành và canh nhà tốt'],
-        cons: ['Rụng lông tương đối nhiều', 'Nhu cầu vận động cao, cần dắt đi dạo 30-45 phút/ngày'],
-        monthlyCost: '1.000.000 - 1.500.000 VNĐ'
+        priceRange: '10.000.000 - 16.000.000 VNĐ',
+        idealBudget: ['8m_to_15m', 'above_15m'],
+        idealSpaces: ['apartment_medium', 'house_garden'],
+        idealPersonalities: ['active_playful', 'cuddly_gentle'],
+        image: 'https://images.unsplash.com/photo-1612536057832-2ff7ead58194?w=800&auto=format&fit=crop',
+        reason: 'Hài hước, chân ngắn mông to siêu đáng yêu, năng động tràn đầy năng lượng và luôn mang lại tiếng cười cho cả nhà.',
+        pros: ['Tính cách vui vẻ, hòa đồng, trung thành tuyệt đối', 'Biểu cảm hài hước, canh nhà rất tốt'],
+        cons: ['Rụng lông theo mùa, cần chải lông đều đặn', 'Nhu cầu vận động cao, cần dắt đi dạo 30-45 phút mỗi ngày'],
+        marketLink: '/buy-pets?species=dog'
       },
       {
-        breed: 'Mèo Ragdoll',
+        breed: 'Chó Golden Retriever',
+        species: 'dog',
+        priceRange: '9.000.000 - 15.000.000 VNĐ',
+        idealBudget: ['8m_to_15m', 'above_15m'],
+        idealSpaces: ['house_garden', 'apartment_medium'],
+        idealPersonalities: ['active_playful', 'cuddly_gentle'],
+        image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&auto=format&fit=crop',
+        reason: 'Đại sứ thân thiện, cực kỳ hiền lành, thông minh và là người bạn đồng hành lý tưởng cho gia đình có sân vườn.',
+        pros: ['Cực kỳ kiên nhẫn và yêu mến trẻ nhỏ', 'Rất nghe lời, dễ huấn luyện', 'Đồng hành chạy bộ và thể thao tuyệt vời'],
+        cons: ['Kích thước lớn khi trưởng thành (25 - 35kg)', 'Cần không gian vận động và rụng lông tương đối'],
+        marketLink: '/buy-pets?species=dog'
+      },
+      {
+        breed: 'Chó Phốc Sóc (Pomeranian)',
+        species: 'dog',
+        priceRange: '9.000.000 - 16.000.000 VNĐ',
+        idealBudget: ['8m_to_15m', 'above_15m'],
+        idealSpaces: ['apartment_small', 'apartment_medium', 'house_garden'],
+        idealPersonalities: ['cuddly_gentle', 'active_playful'],
+        image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&auto=format&fit=crop',
+        reason: 'Ngoại hình như cục bông tuyết di động, quý phái, lanh lợi và cực kỳ thích được chủ nhân ẵm bồng cưng chiều.',
+        pros: ['Ngoại hình kiêu sa, đáng yêu thu hút mọi ánh nhìn', 'Kích thước nhỏ gọn, thích hợp ở căn hộ'],
+        cons: ['Bộ lông kép cần chải chuốt chăm sóc thường xuyên', 'Đôi khi thích sủa nhẹ để gây sự chú ý'],
+        marketLink: '/buy-pets?species=dog'
+      },
+      {
+        breed: 'Mèo Anh Lông Ngắn (British Shorthair)',
         species: 'cat',
-        matchScore: 88,
-        image: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=600&auto=format&fit=crop',
-        reason: 'Được ví như chú cún con đội lốt mèo: cực kỳ hiền lành, thích được ẵm bồng và mắt xanh hút hồn.',
-        pros: ['Siêu hiền và kiên nhẫn với trẻ nhỏ', 'Tiếng kêu nhỏ nhẹ'],
-        cons: ['Bộ lông dài cần chăm sóc cẩn thận', 'Cần không gian phòng tương đối thoáng mát'],
-        monthlyCost: '900.000 - 1.400.000 VNĐ'
+        priceRange: '8.000.000 - 14.000.000 VNĐ',
+        idealBudget: ['8m_to_15m', 'under_8m'],
+        idealSpaces: ['apartment_small', 'apartment_medium', 'house_garden'],
+        idealPersonalities: ['calm_independent', 'cuddly_gentle'],
+        image: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800&auto=format&fit=crop',
+        reason: 'Điềm tĩnh, má bánh bao tròn trịa, tự lập ngoan ngoãn khi chủ vắng nhà và không gây tiếng ồn cho chung cư.',
+        pros: ['Điềm đạm, không phá phách đồ đạc trong nhà', 'Tự lập rất tốt khi chủ đi làm cả ngày', 'Lông ngắn mềm mịn, ít tốn công chải chuốt'],
+        cons: ['Hơi lười vận động, dễ thừa cân nếu ăn nhiều pate', 'Rụng lông tơ vào các đợt giao mùa'],
+        marketLink: '/buy-pets?species=cat'
+      },
+      {
+        breed: 'Mèo Ragdoll Mắt Xanh',
+        species: 'cat',
+        priceRange: '15.000.000 - 25.000.000 VNĐ',
+        idealBudget: ['above_15m', '8m_to_15m'],
+        idealSpaces: ['apartment_medium', 'house_garden', 'apartment_small'],
+        idealPersonalities: ['cuddly_gentle', 'calm_independent'],
+        image: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=800&auto=format&fit=crop',
+        reason: 'Được mệnh danh là chú cún đội lốt mèo: đôi mắt xanh biếc, hiền lành nũng nịu, khi bế lên sẽ thả lỏng trọn vẹn.',
+        pros: ['Cực kỳ tình cảm, thích được ôm ấp và ngủ cùng chủ', 'Tuyệt đối hiền lành, an toàn với trẻ nhỏ', 'Tiếng kêu nhỏ nhẹ, thanh lịch'],
+        cons: ['Bộ lông dài cần được chải lông 2-3 lần/tuần', 'Mức giá thuộc phân khúc cao cấp'],
+        marketLink: '/buy-pets?species=cat'
+      },
+      {
+        breed: 'Mèo Munchkin Chân Ngắn',
+        species: 'cat',
+        priceRange: '10.000.000 - 18.000.000 VNĐ',
+        idealBudget: ['8m_to_15m', 'above_15m'],
+        idealSpaces: ['apartment_small', 'apartment_medium', 'house_garden'],
+        idealPersonalities: ['cuddly_gentle', 'active_playful'],
+        image: 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=800&auto=format&fit=crop',
+        reason: 'Bé nấm lùn chân ngắn siêu cấp dễ thương, hoạt bát, tinh nghịch và luôn lon ton theo chân chủ nhân khắp nhà.',
+        pros: ['Dáng đi lạch bạch ngộ nghĩnh, biểu cảm đáng yêu', 'Thân thiện, hòa đồng với thú cưng khác', 'Rất thích chơi đùa và nằm lòng vuốt ve'],
+        cons: ['Hạn chế leo trèo quá cao do đặc điểm chân ngắn', 'Cần giữ ấm tốt vào mùa đông hoặc phòng điều hòa'],
+        marketLink: '/buy-pets?species=cat'
+      },
+      {
+        breed: 'Mèo Ba Tư (Persian Cat)',
+        species: 'cat',
+        priceRange: '6.000.000 - 11.000.000 VNĐ',
+        idealBudget: ['under_8m', '8m_to_15m'],
+        idealSpaces: ['apartment_small', 'apartment_medium'],
+        idealPersonalities: ['calm_independent', 'cuddly_gentle'],
+        image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=800&auto=format&fit=crop',
+        reason: 'Trầm tính, vẻ đẹp quý tộc hoàng gia, thích không gian êm đềm và mức chi phí đón bé vô cùng hợp lý.',
+        pros: ['Rất tĩnh lặng, không nhảy nhót phá phách', 'Ngân sách đón bé tiết kiệm, dễ tiếp cận', 'Gương mặt tịt biểu cảm ngơ ngác đáng yêu'],
+        cons: ['Cần vệ sinh khóe mắt và chải lông xù thường xuyên', 'Khả năng chịu nóng kém, thích không gian mát mẻ'],
+        marketLink: '/buy-pets?species=cat'
       }
     ];
 
-    // Tinh chỉnh điểm số dựa trên tiêu chí nhập
-    if (livingSpace === 'apartment_small' || roomArea === 'under_30') {
-      candidates.find(c => c.species === 'cat').matchScore += 3;
-      const corgi = candidates.find(c => c.breed.includes('Corgi'));
-      if (corgi) corgi.matchScore -= 10;
+    // Lọc theo loài nếu người dùng chọn cụ thể Chó hoặc Mèo
+    let pool = candidates;
+    if (species === 'dog') {
+      pool = candidates.filter(c => c.species === 'dog');
+    } else if (species === 'cat') {
+      pool = candidates.filter(c => c.species === 'cat');
     }
 
-    if (freeTimeHours === 'under_1h') {
-      candidates.filter(c => c.species === 'cat').forEach(c => c.matchScore += 5);
-      candidates.filter(c => c.species === 'dog').forEach(c => c.matchScore -= 8);
-    }
+    // Tính điểm tương thích cho từng giống
+    const scored = pool.map(item => {
+      let score = 70; // Điểm cơ sở
 
-    return candidates.sort((a, b) => b.matchScore - a.matchScore);
+      // 1. Phù hợp ngân sách (Mệnh giá)
+      if (item.idealBudget.includes(budgetTier)) {
+        score += 12;
+      } else {
+        score -= 8;
+      }
+
+      // 2. Phù hợp không gian sống
+      if (item.idealSpaces.includes(livingSpace)) {
+        score += 9;
+      } else {
+        score -= 6;
+      }
+
+      // 3. Phù hợp tính cách
+      if (item.idealPersonalities.includes(personality)) {
+        score += 9;
+      } else {
+        score -= 5;
+      }
+
+      // Điều chỉnh điểm số biên
+      const finalScore = Math.min(98, Math.max(65, score));
+
+      return {
+        ...item,
+        matchScore: finalScore
+      };
+    });
+
+    // Sắp xếp giảm dần theo % tương thích
+    return scored.sort((a, b) => b.matchScore - a.matchScore);
   }
 }
 

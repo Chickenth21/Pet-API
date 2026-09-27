@@ -1,5 +1,9 @@
+const path = require('path');
 const dotenv = require('dotenv');
-dotenv.config();
+
+// Đảm bảo luôn tải đúng tệp .env tại thư mục server
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config(); // fallback mặc định
 
 // Chuẩn hóa SUPABASE_URL: loại bỏ /rest/v1/ nếu người dùng cấu hình kèm
 let supabaseUrl = process.env.SUPABASE_URL || 'https://kqdnvaoocfbhvwkcxhdp.supabase.co';

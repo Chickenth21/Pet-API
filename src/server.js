@@ -34,6 +34,23 @@ app.use((req, res, next) => {
 // Global Error Handler kết nối Discord Alert
 app.use(errorHandler);
 
+const { sendDiscordError } = require('./utils/discordLogger');
+
+// Bắt mọi ngoại lệ Node.js chưa xử lý (Uncaught Exceptions)
+process.on('uncaughtException', (err) => {
+  console.error('💥 [FATAL UNCAUGHT EXCEPTION]:', err);
+  sendDiscordError(err, { source: 'NodeJS Uncaught Exception', url: 'Fatal Crash' })
+    .catch(() => {});
+});
+
+// Bắt mọi Promise bị từ chối chưa xử lý (Unhandled Rejections)
+process.on('unhandledRejection', (reason) => {
+  console.error('💥 [FATAL UNHANDLED REJECTION]:', reason);
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  sendDiscordError(err, { source: 'NodeJS Unhandled Promise Rejection', url: 'Async Error' })
+    .catch(() => {});
+});
+
 const PORT = config.port;
 const server = app.listen(PORT, () => {
   console.log(`==============================================`);

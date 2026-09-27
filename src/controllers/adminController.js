@@ -1,6 +1,7 @@
 const productService = require('../services/productService');
 const affiliateService = require('../services/affiliateService');
 const blogService = require('../services/blogService');
+const petSaleService = require('../services/petSaleService');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 class AdminController {
@@ -10,11 +11,19 @@ class AdminController {
       const productsData = await productService.getProducts({ limit: 100, include_inactive: true });
       const categories = await productService.getCategories();
       const blogs = await blogService.getAllPostsAdmin();
+      const petsSaleData = await petSaleService.getPets({ limit: 100, include_sold: true });
+
+      const totalPetsForSale = petsSaleData.pagination.total;
+      const petsAvailable = petsSaleData.pets.filter(p => p.status === 'available').length;
+      const petsSold = petsSaleData.pets.filter(p => p.status === 'sold').length;
 
       return successResponse(res, {
         summary: {
           totalUsers: 148,
           totalPets: 215,
+          totalPetsForSale,
+          petsAvailable,
+          petsSold,
           totalProducts: productsData.pagination.total,
           totalArticles: blogs.length,
           totalAffiliateClicks: clickStats.totalClicks,
@@ -23,7 +32,8 @@ class AdminController {
         },
         clickStats,
         categoriesCount: categories.length,
-        recentProducts: productsData.products.slice(0, 5)
+        recentProducts: productsData.products.slice(0, 5),
+        recentPets: petsSaleData.pets.slice(0, 5)
       }, 'Lấy dữ liệu thống kê quản trị thành công');
     } catch (err) {
       next(err);
@@ -130,6 +140,79 @@ class AdminController {
       const { id } = req.params;
       const deleted = await blogService.deletePost(id);
       return successResponse(res, deleted, 'Đã xóa bài viết thành công');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // --- QUẢN LÝ THÚ CƯNG BÁN (PET SALES CRUD) ---
+  async getAdminPetsForSale(req, res, next) {
+    try {
+      const { species, status, search, page, limit } = req.query;
+      const data = await petSaleService.getPets({
+        species,
+        status,
+        search,
+        page,
+        limit,
+        include_sold: true
+      });
+      return successResponse(res, data, 'Lấy danh sách thú cưng quản trị thành công');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createPetForSale(req, res, next) {
+    try {
+      const { name, price, species, breed } = req.body;
+      if (!name || !price || !breed) {
+        return errorResponse(res, 'Vui lòng điền đầy đủ Tên, Giống và Giá bán của bé cưng', 400);
+      }
+      const pet = await petSaleService.createPet(req.body);
+      return successResponse(res, pet, 'Đăng thông tin bé thú cưng thành công', 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async updatePetForSale(req, res, next) {
+    try {
+      const { id } = req.params;
+      const pet = await petSaleService.updatePet(id, req.body);
+      if (!pet) {
+        return errorResponse(res, 'Không tìm thấy bé thú cưng để cập nhật', 404);
+      }
+      return successResponse(res, pet, 'Cập nhật thông tin bé thú cưng thành công');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async updatePetForSaleStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      if (!status) {
+        return errorResponse(res, 'Trạng thái không được để trống', 400);
+      }
+      const pet = await petSaleService.updatePetStatus(id, status);
+      const statusLabels = {
+        available: '🟢 Đang tìm chủ',
+        reserved: '🟡 Đã nhận cọc',
+        sold: '⚪ Đã về nhà mới'
+      };
+      return successResponse(res, pet, `Đã cập nhật trạng thái bé thành: ${statusLabels[status] || status}`);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deletePetForSale(req, res, next) {
+    try {
+      const { id } = req.params;
+      await petSaleService.deletePet(id);
+      return successResponse(res, null, 'Đã xóa bé thú cưng khỏi danh sách mở bán');
     } catch (err) {
       next(err);
     }
