@@ -34,6 +34,11 @@ router.patch('/users/:id/role', adminController.updateUserRole);
 router.patch('/users/:id/status', adminController.toggleUserStatus);
 router.delete('/users/:id', adminController.deleteUser);
 
+// Quản lý Hồ sơ Thú cưng Khách hàng & Thể trạng (User Pets & Health Management)
+router.get('/user-pets', adminController.getUserPets);
+router.get('/user-pets/:id/health', adminController.getUserPetHealth);
+router.delete('/user-pets/:id', adminController.deleteUserPet);
+
 // Quản lý Bệnh Viện Thú Y & Tiệm Spa (Pet Hospitals & Spas CRUD)
 router.get('/locations', locationController.getAdminLocations);
 router.post('/locations', locationController.createLocation);

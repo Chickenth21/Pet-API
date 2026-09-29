@@ -258,6 +258,147 @@ class PetService {
     // Sắp xếp giảm dần theo % tương thích
     return scored.sort((a, b) => b.matchScore - a.matchScore);
   }
+
+  /**
+   * Quản trị viên: Lấy danh sách toàn bộ hồ sơ thú cưng của khách hàng trong hệ thống
+   */
+  async getAllPetsForAdmin({ search, species, page = 1, limit = 50 } = {}) {
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 50;
+    const offset = (pageNum - 1) * limitNum;
+
+    try {
+      let query = supabase
+        .from('pets')
+        .select(`
+          *,
+          users:user_id (id, full_name, email),
+          health_records (id, weight, recorded_date)
+        `, { count: 'exact' });
+
+      if (species && species !== 'all') {
+        query = query.eq('species', species);
+      }
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,breed.ilike.%${search}%`);
+      }
+
+      query = query.order('created_at', { ascending: false }).range(offset, offset + limitNum - 1);
+
+      const { data, count, error } = await query;
+      if (!error && data) {
+        const formatted = data.map(pet => {
+          const records = pet.health_records || [];
+          records.sort((a, b) => new Date(b.recorded_date) - new Date(a.recorded_date));
+          const latestRecord = records[0] || null;
+          return {
+            ...pet,
+            owner_name: pet.users?.full_name || 'Khách hàng',
+            owner_email: pet.users?.email || '',
+            health_records_count: records.length,
+            latest_weight: latestRecord ? latestRecord.weight : pet.initial_weight,
+            health_records: undefined,
+            users: undefined
+          };
+        });
+
+        return {
+          pets: formatted,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total: count !== null ? count : data.length,
+            totalPages: Math.ceil((count !== null ? count : data.length) / limitNum) || 0
+          }
+        };
+      }
+    } catch {
+      // Fallback
+    }
+
+    // In-memory fallback
+    let filtered = [...memoryPets];
+    if (species && species !== 'all') {
+      filtered = filtered.filter(p => p.species === species);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(p => 
+        (p.name && p.name.toLowerCase().includes(q)) || 
+        (p.breed && p.breed.toLowerCase().includes(q))
+      );
+    }
+
+    const total = filtered.length;
+    const paginated = filtered.slice(offset, offset + limitNum);
+
+    return {
+      pets: paginated.map(p => ({
+        ...p,
+        owner_name: p.owner_name || 'Khách hàng',
+        owner_email: p.owner_email || 'customer@gmail.com',
+        health_records_count: p.health_records_count || 0,
+        latest_weight: p.initial_weight || '—'
+      })),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum) || 0
+      }
+    };
+  }
+
+  /**
+   * Quản trị viên: Lấy chi tiết lịch sử đo chỉ số thể trạng của 1 thú cưng
+   */
+  async getPetHealthDetailsForAdmin(petId) {
+    let pet = null;
+    let records = [];
+
+    try {
+      const { data: petData } = await supabase
+        .from('pets')
+        .select('*, users:user_id(id, full_name, email)')
+        .eq('id', petId)
+        .maybeSingle();
+
+      const { data: recData } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('pet_id', petId)
+        .order('recorded_date', { ascending: false });
+
+      if (petData) {
+        pet = {
+          ...petData,
+          owner_name: petData.users?.full_name || 'Khách hàng',
+          owner_email: petData.users?.email || '',
+          users: undefined
+        };
+        records = recData || [];
+        return { pet, records };
+      }
+    } catch {
+      // Fallback
+    }
+
+    pet = memoryPets.find(p => p.id === petId) || { id: petId, name: 'Thú cưng' };
+    return { pet, records };
+  }
+
+  /**
+   * Quản trị viên: Xóa hồ sơ thú cưng
+   */
+  async deletePetByAdmin(petId) {
+    try {
+      await supabase.from('pets').delete().eq('id', petId);
+    } catch {
+      // Fallback
+    }
+    memoryPets = memoryPets.filter(p => p.id !== petId);
+    return true;
+  }
 }
 
 module.exports = new PetService();

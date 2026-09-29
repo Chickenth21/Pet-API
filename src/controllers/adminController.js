@@ -2,6 +2,7 @@ const productService = require('../services/productService');
 const affiliateService = require('../services/affiliateService');
 const blogService = require('../services/blogService');
 const petSaleService = require('../services/petSaleService');
+const petService = require('../services/petService');
 const userService = require('../services/userService');
 const supabase = require('../utils/supabaseClient');
 const { successResponse, errorResponse } = require('../utils/responseHelper');
@@ -289,6 +290,37 @@ class AdminController {
       return successResponse(res, { id }, 'Đã xóa tài khoản người dùng thành công');
     } catch (err) {
       return errorResponse(res, err.message, 400);
+    }
+  }
+
+  // --- QUẢN LÝ HỒ SƠ THÚ CƯNG KHÁCH HÀNG & THỂ TRẠNG (USER PETS & HEALTH) ---
+  async getUserPets(req, res, next) {
+    try {
+      const { search, species, page, limit } = req.query;
+      const data = await petService.getAllPetsForAdmin({ search, species, page, limit });
+      return successResponse(res, data, 'Lấy danh sách hồ sơ thú cưng thành công');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getUserPetHealth(req, res, next) {
+    try {
+      const { id } = req.params;
+      const data = await petService.getPetHealthDetailsForAdmin(id);
+      return successResponse(res, data, 'Lấy chi tiết thể trạng thú cưng thành công');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deleteUserPet(req, res, next) {
+    try {
+      const { id } = req.params;
+      await petService.deletePetByAdmin(id);
+      return successResponse(res, { id }, 'Đã xóa hồ sơ thú cưng thành công');
+    } catch (err) {
+      next(err);
     }
   }
 

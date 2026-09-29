@@ -2,103 +2,7 @@ const supabase = require('../utils/supabaseClient');
 const crypto = require('crypto');
 
 // Dữ liệu ban đầu đồng bộ với giao diện phòng khám & spa thực tế
-let memoryLocations = [
-  {
-    id: '10000000-0000-0000-0000-000000000001',
-    name: 'Bệnh Viện Thú Y PetCare 24/7',
-    type: 'clinic',
-    address: '124 Hoàng Hoa Thám, Ba Đình, Hà Nội',
-    district: 'Ba Đình',
-    city: 'Hà Nội',
-    phone: '024 3823 4567',
-    rating: 4.9,
-    reviews_count: 182,
-    emergency_24h: true,
-    distance: '1.2 km',
-    image_url: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&auto=format&fit=crop',
-    services: ['Cấp cứu 24/7', 'Phẫu thuật chuyên sâu', 'Xét nghiệm máu', 'Tiêm phòng vacxin'],
-    description: 'Hệ thống bệnh viện thú y chuẩn quốc tế với đầy đủ trang thiết bị cấp cứu, phòng mổ vô trùng và đội ngũ bác sĩ chuyên khoa.',
-    is_active: true,
-    created_at: new Date('2026-01-01').toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '10000000-0000-0000-0000-000000000002',
-    name: 'Hệ Thống Thú Y 2Vet Clinic',
-    type: 'clinic',
-    address: '335 Kim Mã, Ba Đình, Hà Nội',
-    district: 'Ba Đình',
-    city: 'Hà Nội',
-    phone: '098 632 8822',
-    rating: 4.8,
-    reviews_count: 145,
-    emergency_24h: true,
-    distance: '2.5 km',
-    image_url: 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=600&auto=format&fit=crop',
-    services: ['Siêu âm - X-quang', 'Nội trú điều trị', 'Khám da liễu', 'Triệt sản an toàn'],
-    description: 'Phòng khám thú y uy tín, cung cấp các dịch vụ chẩn đoán hình ảnh kỹ thuật số hiện đại và phác đồ điều trị an toàn.',
-    is_active: true,
-    created_at: new Date('2026-01-05').toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '10000000-0000-0000-0000-000000000003',
-    name: 'PetSpa & Grooming House',
-    type: 'spa',
-    address: '56 Nguyễn Chí Thanh, Đống Đa, Hà Nội',
-    district: 'Đống Đa',
-    city: 'Hà Nội',
-    phone: '091 234 5678',
-    rating: 4.9,
-    reviews_count: 96,
-    emergency_24h: false,
-    distance: '3.1 km',
-    image_url: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&auto=format&fit=crop',
-    services: ['Tắm sấy khử mùi', 'Cắt tỉa lông tạo kiểu', 'Cắt móng vệ sinh tai', 'Khách sạn thú cưng'],
-    description: 'Spa thú cưng chuẩn 5 sao với các gói dịch vụ tắm bồn sục oxy, massage xoa dịu stress và cắt tỉa nghệ thuật chuẩn giống.',
-    is_active: true,
-    created_at: new Date('2026-01-10').toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '10000000-0000-0000-0000-000000000004',
-    name: 'Phòng Khám Thú Y Gaia Pet Hospital',
-    type: 'clinic',
-    address: '38 Xuân Diệu, Tây Hồ, Hà Nội',
-    district: 'Tây Hồ',
-    city: 'Hà Nội',
-    phone: '024 3718 6969',
-    rating: 4.7,
-    reviews_count: 110,
-    emergency_24h: false,
-    distance: '4.0 km',
-    image_url: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&auto=format&fit=crop',
-    services: ['Khám tổng quát', 'Nha khoa thú cưng', 'Điều trị nội trú', 'Chăm sóc mèo chuyên sâu'],
-    description: 'Phòng khám thú y với đội ngũ bác sĩ song ngữ, trang bị máy sinh hóa máu tự động và khu điều trị nội trú riêng biệt cho mèo.',
-    is_active: true,
-    created_at: new Date('2026-01-12').toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '10000000-0000-0000-0000-000000000005',
-    name: 'Kimi Pet - Spa & Phụ Kiện Thú Cưng',
-    type: 'spa',
-    address: '126 Láng Hạ, Đống Đa, Hà Nội',
-    district: 'Đống Đa',
-    city: 'Hà Nội',
-    phone: '088 888 1234',
-    rating: 4.8,
-    reviews_count: 204,
-    emergency_24h: false,
-    distance: '3.8 km',
-    image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?w=600&auto=format&fit=crop',
-    services: ['Spa tắm bồn sục', 'Nhuộm lông nghệ thuật', 'Khách sạn chó mèo cao cấp'],
-    description: 'Học viện cắt tỉa và salon thú cưng cao cấp hàng đầu với hệ thống phòng khách sạn điều hòa riêng biệt.',
-    is_active: true,
-    created_at: new Date('2026-01-15').toISOString(),
-    updated_at: new Date().toISOString()
-  }
-];
+let memoryLocations = [];
 
 class LocationService {
   /**
@@ -142,7 +46,7 @@ class LocationService {
 
       const { data, count, error } = await query;
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return {
           locations: data,
           pagination: {
